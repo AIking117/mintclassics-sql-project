@@ -38,14 +38,13 @@ ___
 ## 📊 Data Analysis and Key Insights
 This section outlines the processes taken the analyze and to determine which Mint Classics warehouse may be closed with minimal disruption and maximum efficiency. Each subsection presents a key business question, a brieft description of the analysis performed with MySQL Workbench, and insights gathered.
 
-## 1.) Which Warehouse Generates the Most Revenue?
-💬 Question: What are the total sales figures by warehouse?
+## 1.) Which Warehouse Generates the Most Revenue? What are the total sales figures by warehouse?
 
 ### Analysis:
 To obtain the `total_revenue` per warehouse, `priceEach` and `quantityOrdered` from table `orderdetails` were multiplied. `join`, `ORDER BY` and `GROUP BY`clause were utilized in order to obtain the results per warehouse.
 
 <details>
-<summary>📜 Click to expand SQL Query</summary>
+<summary>Click to expand SQL Query</summary>
   
  ```sql
  SELECT p.warehouseCode, 
@@ -61,14 +60,14 @@ GROUP BY p.warehouseCode;--
 
 ![TotalRevSQl SS](images/TotalRevSQL.png)
 
-• Warehouse B generated the most revenue overall.
+• Warehouse B generated approximately #3.8 million dollars, having the most total sales compare to other warehouses.
 
-• Warehouse C had the lowest total revenue, suggesting inefficiencies in inventory usage despite comparable stock levels.
+• Warehouse C had the lowest total revenue at $1.7 million dollars, suggesting inefficiencies in inventory usage despite comparable stock levels.
 
-<p align="center"> <img src="images/TotalRevSQL.png" alt="SQL Query Screenshot" width="45%" /> <img src="images/TotalRevPerWarehosue.png" alt="Revenue Chart" width="45%" /> </p>
+<p align="center"> <img src="images/TotalRevSQL.png" alt="SQL Query Screenshot" width="54%" /> <img src="images/TotalRevPerWarehosue.png" alt="Revenue Chart" width="45%" /> </p>
 
 ### Revenue Trends Over Time
-A second query was written to track revenue changes over time. This reveals seasonal or operational trends across warehouses.
+A 2nd SQL query was written to track revenue changes over time. This reveals seasonal or operational trends across warehouses.
 
 <details> <summary> Click to expand SQL Query</summary>
   
@@ -82,15 +81,96 @@ JOIN products p ON od.productCode = p.productCode
 GROUP BY p.warehouseCode, DATE_FORMAT(o.orderDate, '%Y-%m')
 ORDER BY 'year-month';
 ```
+</details>
 
-</details> <p align="center"> <img src="images/MonthlyRevenuePerWarehouse.png" alt="Monthly Revenue by Warehouse" width="80%" /> </p>
-📌 Insights:
 
-Revenue from Warehouse C stagnated over time, suggesting inefficiency.
 
-Warehouse D rebounded steadily after a low point in early 2005.
+### Insights:
 
-Warehouse A saw a gradual decline, while B remained relatively consistent.
+ <p align="center"> <img src="images/MonthlyRevenuePerWarehouse.png" alt="Monthly Revenue by Warehouse" width="70%" /> </p>
+
+
+
+• Warehouse A revenue seems to be at a **decline** since April 2005, by May at revenue of $78,479.32.
+
+• Warehouse B revenue steadied since Christmas of 2004, then at a revenue of $177,674.87 by May 2005.
+
+• Warehouse C revenue steadied since Christmas 2004, then at a revenue of $70,964.85 by May 2005.
+
+• Warehouse D revenue hit a bottom of $6034.22 at the end of April 2005, but at an **increase** to $114,355.90 by May 20005
+
+## 2.) Which Warehouse Has the Slowest-Moving Inventory? What is the turnover rate (units sold ÷ units in stock) for each warehouse?
+
+## Analysis:
+In Mintclassics database, the table `warehouse` demonstrated warehouse capacity percentage.
+
+</details> <p align="center"> <img src="images/WarehouseTable.PNG" alt="Monthly Revenue by Warehouse" width="60%" /> </p>
+
+
+This suggested that:
+
+•Warehouse C (West) is operating at only **50%** capacity, the lowest among all.
+
+•Warehouse D (South) is operating near full at **75%**, indicating high utilization.
+
+To assess how efficiently warehouses are moving their inventory, we computed the **inventory turnover rate**, which compares total units sold to total inventory stocked. The SQL query summed `quantityOrdered` and q`uantityInStock` per warehouse, and calculated:
+
+$Turnover\ Rate = \frac{Total\ Units\ Sold}{Total\ Inventory}$
+
+This allowed us to identify slow-moving inventory, where stock remains unsold for longer durations.
+
+<details><summary> Click to expand SQL Query</summary>
+  
+```sql
+
+SELECT 
+    p.warehouseCode, 
+    SUM(od.quantityOrdered) AS total_units_sold,
+    SUM(od.quantityOrdered) / SUM(p.quantityInStock) AS turnover_rate
+FROM products p
+JOIN orderdetails od ON p.productCode = od.productCode
+GROUP BY p.warehouseCode
+ORDER BY turnover_rate ASC;
+```
+</details>
+
+## Key Findings:
+
+
+</details> <p align="center"> <img src="images/TurnoverRate.PNG" alt="Turnover Rate per Warehouse" width="80%" /> </p>
+• Warehouse B had the lowest turnover rate, indicating a stockpile of slow-moving goods.
+
+• Warehouse D had the highest turnover, suggesting more efficient inventory movement.
+
+## 3.) Which Products Are Overstocked Compared to Sales? Are there products with excessive inventory compared to their sales?
+
+## Analysis:
+To identify products where the quantity in stock far exceeds their actual sales and demand, we define an overstocked product as:
+
+$Overstock \ Ratio = \frac{quantityinStock}{quantityOrdered}$
+With this, the average overstock ratios per warehouse were calculated to identify underperforming warehouse. Then each product can be associated with the overstock ratio to find the performance of the products. By using `COUNT(*)`and `HAVING` clauses in SQL, products with an overstock ratio of >100 are considered significantly overstocked. These underperforming products may warrant further evaluation for potential markdowns, redistribution, or removal from the product line to improve overall inventory efficiency.
+
+##  Key Findings:
+</details> <p align="center"> <img src="images/TurnoverRate.PNG" alt="Turnover Rate per Warehouse" width="80%" /> </p>
+• *71 distinct products** are identified as overstocked.  
+- A majority were found in **Warehouse B**, reinforcing inefficiency in stock management.
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
