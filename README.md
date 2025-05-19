@@ -144,16 +144,114 @@ ORDER BY turnover_rate ASC;
 
 ## 3.) Which Products Are Overstocked Compared to Sales? Are there products with excessive inventory compared to their sales?
 
-## Analysis:
+### Analysis:
 To identify products where the quantity in stock far exceeds their actual sales and demand, we define an overstocked product as:
 
 $Overstock \ Ratio = \frac{quantityinStock}{quantityOrdered}$
 With this, the average overstock ratios per warehouse were calculated to identify underperforming warehouse. Then each product can be associated with the overstock ratio to find the performance of the products. By using `COUNT(*)`and `HAVING` clauses in SQL, products with an overstock ratio of >100 are considered significantly overstocked. These underperforming products may warrant further evaluation for potential markdowns, redistribution, or removal from the product line to improve overall inventory efficiency.
 
+<details><summary> Click to expand SQL Query</summary>
+  
+```sql
+---Overstock Ratio per warehouse
+SELECT 
+    p.warehouseCode, 
+    SUM(od.quantityOrdered) AS total_units_sold,
+    SUM(od.quantityOrdered) / SUM(p.quantityInStock) AS turnover_rate
+FROM products p
+JOIN orderdetails od ON p.productCode = od.productCode
+GROUP BY p.warehouseCode
+ORDER BY turnover_rate ASC;
+
+--- number of overstock_products per warehouse, 71 distinct products
+SELECT warehouseCode, COUNT(*) AS num_overstocked_products
+FROM (
+    SELECT p.productCode, p.warehouseCode,
+           SUM(p.quantityInStock) AS total_inventory,
+           SUM(od.quantityOrdered) AS total_sales
+    FROM products p
+    JOIN orderdetails od ON p.productCode = od.productCode
+    GROUP BY p.productCode, p.warehouseCode
+    HAVING SUM(p.quantityInStock) / SUM(od.quantityOrdered) > 100
+) AS overstocked_products
+GROUP BY warehouseCode;
+
+```
+</details>
+
 ##  Key Findings:
-</details> <p align="center"> <img src="images/TurnoverRate.PNG" alt="Turnover Rate per Warehouse" width="80%" /> </p>
-• *71 distinct products** are identified as overstocked.  
-- A majority were found in **Warehouse B**, reinforcing inefficiency in stock management.
+</details> <p align="center"> <img src="images/OverstockWarehouse.PNG" alt="Turnover Rate per Warehouse" width="80%" /> </p>
+
+</details> <p align="center"> <img src="images/NumOverstock.PNG" alt="Turnover Rate per Warehouse" width="80%" /> </p>
+
+• A total of *71* distinct products are identified as overstocked.  
+• A majority were found in **Warehouse B**, reinforcing inefficiency in stock management for the warehouse.
+
+---
+---
+## 4.) What Is the Value of Overstocked Inventory?
+
+### Analysis:
+The total inventory value of products with an overstock ratio > 100 were calculated to quantify the financial impact of slow moving inventory. Summed values for per warehouse were calculated for only products with an overstock ratio of > 100.
+
+<details><summary> Click to expand SQL Query</summary>
+  
+```sql
+SELECT 
+    final.warehouseCode,
+    SUM(final.overstocked_inventory_value) AS total_overstocked_value
+FROM (
+    SELECT 
+        p.warehouseCode,
+        (p.quantityInStock * p.buyPrice) AS overstocked_inventory_value
+    FROM products p
+    LEFT JOIN orderdetails od ON p.productCode = od.productCode
+    GROUP BY p.productCode, p.warehouseCode, p.quantityInStock, p.buyPrice
+    HAVING (SUM(p.quantityInStock) / SUM(od.quantityOrdered)) > 100
+) AS final
+GROUP BY final.warehouseCode
+ORDER BY total_overstocked_value DESC;
+```
+</details>
+
+## Key Findings:
+
+</details> <p align="center"> <img src="images/TotalOverstock.PNG" alt="Total Overstock Products Value per Warehuse" width="80%" /> </p>
+
+- Warehouse B has the highest dollar value of its idle inventory at $1,241,232, significantly higher than any other warehouse.
+
+- Warehouse D has the least overstocked products valued at $277,266, suggesting more efficient inventory and sales levels.
+
+- Warehouse B not only has the largest inventory, but it also ties up most capital in slower turnover or excess stocks of products.
+
+---
+---
+## 5.) Which Products Have the Highest Overstock Ratios?
+
+### Analysis:
+Following sql query analysis similar to previous question, the overstock ratio was calculated for each product, then clauses like `GROUP BY` or `HAVING` were utlized to identity the Top 10 products with the higheset overstock ratios.
+
+<details><summary> Click to expand SQL Query</summary>
+  
+```sql
+SELECT
+    p.productCode, p.productName, p.warehouseCode, p.productLine,
+    SUM(p.quantityInStock) / SUM(od.quantityOrdered) AS overstock_ratio
+FROM products p
+JOIN orderdetails od ON p.productCode = od.productCode
+GROUP BY p.productCode, p.productName, p.warehouseCode
+HAVING SUM(p.quantityInStock) / SUM(od.quantityOrdered) > 100;
+```
+</details>
+
+## Key Findings:
+
+</details> <p align="center"> <img src="images/Top10Overstock.PNG" alt="Top 10 Most Overstocked Products" width="80%" /> </p>
+
+- Top 10 most overstocked products are spread across Warehouses B, C and A, with 1995 Honda Civic as the most overstocked product in Warehouse B.
+- Several products show overstock ratios > 200, meaning stock levels are twice or more higher than what sales would justify.
+
+
 
 ---
 
