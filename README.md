@@ -251,94 +251,72 @@ HAVING SUM(p.quantityInStock) / SUM(od.quantityOrdered) > 100;
 - Top 10 most overstocked products are spread across Warehouses B, C and A, with 1995 Honda Civic as the most overstocked product in Warehouse B.
 - Several products show overstock ratios > 200, meaning stock levels are twice or more higher than what sales would justify.
 
+____
+___
+
+## 6.) Which Products Are in the Bottom 10% of Sales Performance?
+
+### Analysis:
+To evaluate product-level performance, SQL window functions were used to segment all products into sales percentiles based on total units sold.
+
+`NTILE(10)` divided the product list into ten equally sized groups.
+Products falling into the 10th percentile (lowest 10%) were flagged as the worst-selling products.`JOIN` and `GROUP BY` clauses were used to aggregate sales by product.
 
 
----
+<details><summary> Click to expand SQL Query</summary>
+  
+```sql
+ SELECT
+        p.productCode,
+        p.productName,
+        p.warehouseCode,
+        SUM(od.quantityOrdered) AS total_units_sold,
+        NTILE(10) OVER (ORDER BY SUM(od.quantityOrdered) DESC) AS sales_percentile
+    FROM products p
+    JOIN orderdetails od ON p.productCode = od.productCode
+    GROUP BY p.productCode, p.productName, p.warehouseCode
+    ORDER BY total_units_sold DESC;
+```
+</details>
+
+## Key Findings:
+
+<p align="center"> <img src="images/BOT10Sales.PNG" alt="Bottom 10 Percent Products" width="80%" /> </p>
+
+- Warehouse B has the highest concentration of bottom 10% selling products. Reinforces earlier findings that warehouse B houses a large amount of underperforming inventory. 
+
+- Many of these products have total sales below 900 units across the data period.
+
+- Some of these slow-moving products are strong candidates for discontinuation or redistribution to optimize space and reduce overhead.
+
+___
+___
+
+## Conclusion: 
+After an extensive SQL-based analysis, Warehouse B (East) has emerged as the most strategic candidate for closure. This recommendation is grounded in multiple key performance metrics:
+
+ - Highest total revenue at ~$3.8M — but misleading due to poor efficiency.
+
+- Lowest turnover rate among all warehouses — indicating a large stock of unsold products.
+
+- Most overstocked products — with 71 items significantly exceeding demand levels.
+
+- Over $1.24M in idle inventory value — the highest across all locations.
+
+- High concentration of bottom 10% sellers — suggesting long-term inefficiency and product stagnation.
+
+While Warehouse B appears profitable at first glance due to high revenue, deeper analysis reveals it is the least operationally efficient, holding the largest volume of slow-moving, overstocked, and underperforming inventory. It also ties up substantial capital in low-demand items as well as having poor inventory utilization relative to capacity.
+
+Closing Warehouse B would free up resources, reduce carrying costs, and enable better inventory reallocation to more efficient warehouses like D (South) or A (North) — both of which exhibit better turnover and utilization rates.
+
+This recommendation is a product of real SQL-driven decision-making — translating raw warehouse and sales data into tangible business actions. It showcases how data science can guide strategic logistics planning and cost optimization in retail operations. However, additonal and deeper analysis such as simulating the relocation of inventory from B to C or D, liquidation modeling, or relational insights between employees, customers, their orders and its pattern can be conducted to bring more accurate and confident solutions for the business. 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## 📊 Tools & Technologies
-- **SQL**: MySQL Workbench
-- **Skills Used**: `JOIN`, `GROUP BY`, `HAVING`, subqueries, `NTILE()`, filtering, calculations
-- **Data**: 10+ relational tables including products, orders, customers, employees, order details, warehouses, and offices
-
----
-
-## 📊 Key Insights
-
-### 🏢 Warehouse Utilization & Efficiency
-- **Warehouse B** has:
-  - The highest revenue
-  - The **lowest turnover rate (0.0061)**
-  - The **most overstocked inventory (164x ratio)**
-- **Warehouse C** is only **50% utilized**, the lowest among all.
-- **Warehouse D** has the **highest turnover rate (0.0102)** and sells inventory efficiently.
-
-### 👚 Overstock Analysis
-- 71 products across all warehouses had an **overstock ratio > 100**.
-- Most of these low-performing products are stored in **Warehouse B**.
-- Products like the 1992 Ferrari 360 Spider Red were top-sellers, while the 1957 Ford Thunderbird performed worst.
-
-### 📅 Revenue Insights
-- Warehouse B generated the **most total revenue** ($3.85M), but holds much slow-moving inventory.
-- **Warehouse C has the highest profit margins** but brings in the **least total revenue**.
-- Warehouse A's revenue is **declining** based on time series trend plots.
-
-### 👨‍💼 Employee/Customer Dependencies
-- 15 employees are directly tied to sales fulfilled by **Warehouse C**.
-- Customers from regions tied to Warehouse C contribute a **minor portion** of revenue.
-
-### 🚚 Logistics Considerations
-- Warehouse D is near capacity (75%) and handles fast-moving products like Trains/Ships.
-- Warehouse C serves some unshipped orders, which would need to be redistributed if closed.
-
----
-
-## ✅ Recommendation
-After detailed SQL-based analysis, **Warehouse C** emerges as the top candidate for closure:
-- Underutilized (50% capacity)
-- Least revenue generation
-- Lower sales throughput
-- Fewest customer/employee dependencies
-
-Redistributing slow-moving products from **Warehouse B** can further optimize the supply chain.
 
 ---
 
-## 📄 Files in This Repository
-| File | Description |
-|------|-------------|
-| `mintclassicsDB.sql` | SQL database dump of the Mint Classics schema |
-| `analysis_queries.sql` | SQL scripts used for analysis |
-| `Mint_Classics_Analysis_Report.pdf` | Full PDF report with visuals and narrative |
-| `README.md` | Project overview and summary |
-
----
-
-## 🚀 Future Improvements
-- Include storage cost data for deeper operational cost analysis
-- Integrate external sales forecasting tools (Python, Excel)
-- Apply time-series models for seasonality adjustments
-
----
-
-## 🎓 Author
-**Clem117343** | Aspiring AI Engineer with a passion for SQL, data, and operational insights.
+<!-- ## 🎓 Author
+**Clem117343** | Aspiring AI Engineer with a passion for SQL, data, and operational insights. -->
 
 ---
 
