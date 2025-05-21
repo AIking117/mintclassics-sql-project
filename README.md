@@ -19,8 +19,8 @@ Guided by the objectives, SQL queries were developed and executed in MySQL Workb
 - Where are we overstocking vs. under-selling products?
 - Can inventory be redistributed to avoid service disruptions?
 - What is the revenue and operational performance of each warehouse?
+___
 
----
 ## Data Model & Schema Overview
 This project utilizes a structured relational database which included several interconeected tables:
 
@@ -35,7 +35,7 @@ This project utilizes a structured relational database which included several in
 The relationships between these tables are illustrated in the EER (Enhanced Entity-Relationship) diagram below:
 ![EER Diagram](images/EERDiagram.JPG)
 ___
-## 📊 Data Analysis and Key Insights
+## Data Analysis and Key Insights
 This section outlines the processes taken the analyze and to determine which Mint Classics warehouse may be closed with minimal disruption and maximum efficiency. Each subsection presents a key business question, a brieft description of the analysis performed with MySQL Workbench, and insights gathered.
 
 ## 1.) Which Warehouse Generates the Most Revenue? What are the total sales figures by warehouse?
@@ -98,6 +98,7 @@ ORDER BY 'year-month';
 • Warehouse C revenue steadied since Christmas 2004, then at a revenue of $70,964.85 by May 2005.
 
 • Warehouse D revenue hit a bottom of $6034.22 at the end of April 2005, but at an **increase** to $114,355.90 by May 20005
+___
 
 ## 2.) Which Warehouse Has the Slowest-Moving Inventory? What is the turnover rate (units sold ÷ units in stock) for each warehouse?
 
@@ -186,9 +187,7 @@ GROUP BY warehouseCode;
 
 • A total of *71* distinct products are identified as overstocked.  
 • A majority were found in **Warehouse B**, reinforcing inefficiency in stock management for the warehouse.
-
----
----
+___
 ## 4.) What Is the Value of Overstocked Inventory?
 
 ### Analysis:
@@ -223,9 +222,8 @@ ORDER BY total_overstocked_value DESC;
 - Warehouse D has the least overstocked products valued at $277,266, suggesting more efficient inventory and sales levels.
 
 - Warehouse B not only has the largest inventory, but it also ties up most capital in slower turnover or excess stocks of products.
+___
 
----
----
 ## 5.) Which Products Have the Highest Overstock Ratios?
 
 ### Analysis:
@@ -250,9 +248,7 @@ HAVING SUM(p.quantityInStock) / SUM(od.quantityOrdered) > 100;
 
 - Top 10 most overstocked products are spread across Warehouses B, C and A, with 1995 Honda Civic as the most overstocked product in Warehouse B.
 - Several products show overstock ratios > 200, meaning stock levels are twice or more higher than what sales would justify.
-
 ____
-___
 
 ## 6.) Which Products Are in the Bottom 10% of Sales Performance?
 
@@ -288,8 +284,6 @@ Products falling into the 10th percentile (lowest 10%) were flagged as the worst
 - Many of these products have total sales below 900 units across the data period.
 
 - Some of these slow-moving products are strong candidates for discontinuation or redistribution to optimize space and reduce overhead.
-
-___
 ___
 
 ## Conclusion: 
@@ -310,15 +304,14 @@ While Warehouse B appears profitable at first glance due to high revenue, deeper
 Closing Warehouse B would free up resources, reduce carrying costs, and enable better inventory reallocation to more efficient warehouses like D (South) or A (North) — both of which exhibit better turnover and utilization rates.
 
 This recommendation is a product of real SQL-driven decision-making — translating raw warehouse and sales data into tangible business actions. It showcases how data science can guide strategic logistics planning and cost optimization in retail operations. However, additonal and deeper analysis such as simulating the relocation of inventory from B to C or D, liquidation modeling, or relational insights between employees, customers, their orders and its pattern can be conducted to bring more accurate and confident solutions for the business. 
+___
+___
 
 
-
----
 
 <!-- ## 🎓 Author
 **Clem117343** | Aspiring AI Engineer with a passion for SQL, data, and operational insights. -->
 
----
 
 ## 🌍 Connect
 - [LinkedIn Profile](https://www.linkedin.com/in/clementchai117)
