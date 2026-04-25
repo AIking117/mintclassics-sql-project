@@ -317,5 +317,4 @@ ___
 - [LinkedIn Profile](https://www.linkedin.com/in/clementchai117)
 - [Portfolio Website](https://yourwebsite.com) _(optional)_
 
-> “In God we trust. All others must bring data.” — W. Edwards Deming
 
